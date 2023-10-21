@@ -12,6 +12,7 @@ namespace PatientSocialDistance.DataAccess.Repository.IRepository
         
         Task<IEnumerable<Vist>> GetAllAsync(string UserId);
         Task<Vist> GetByIdAsync(int Id);
+        Task<IEnumerable<Vist>> GetByIdAndDateAsync(string UserId, DateOnly date, bool? approved = false);
         void Add(Vist vist);
 
     }

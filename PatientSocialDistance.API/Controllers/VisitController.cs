@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PatientSocialDistance.BusinessLogic.Services.IServices;
+using PatientSocialDistance.Persistence;
 using PatientSocialDistance.Persistence.DTOs;
 
 namespace PatientSocialDistance.API.Controllers
@@ -40,13 +41,29 @@ namespace PatientSocialDistance.API.Controllers
             return Ok(result);
         }
 
-        [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll(string userId)
+        [HttpGet("GetByDate")]
+        public async Task<IActionResult> GetByDate(string userId, string date)
         {
 
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var result = await _visitService.GetAllVisits(userId);
+            var dateOnly = DateOnly.TryParse(date, out DateOnly searchDate);
+            if (!dateOnly) return BadRequest(ResultMessages.DateNotValid);
+
+            var result = await _visitService.GetVisitsByDate(userId, searchDate);
+
+            if (!result.IsCompleted) return BadRequest(result.Message);
+
+            return Ok(result.Value);
+        }
+
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> GetAll(string date)
+        {
+
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var result = await _visitService.GetAllVisits(date);
 
             if (!result.IsCompleted) return BadRequest(result.Message);
 

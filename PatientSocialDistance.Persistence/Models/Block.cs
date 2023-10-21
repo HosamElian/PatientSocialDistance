@@ -11,6 +11,7 @@ namespace PatientSocialDistance.Persistence.Models
     {
         public int Id { get; set; }
         public bool IsDeleted { get; set; }
+        public bool IsActive { get; set; }
         public string UserMakeBlockId { get; set; }
         public string UserBlockedId { get; set; }
         public DateTime BlockedAt { get; set; }

@@ -21,7 +21,7 @@ namespace PatientSocialDistance.DataAccess.Repository
         public async Task<IEnumerable<Interaction>> GetAllAsync(string UserId)
         {
             var query =  _context.Interactions.AsQueryable();
-            return await query.Where(x => x.UserId == UserId).ToListAsync();
+            return await query.Where(x => x.UserId == UserId).Include(x=> x.VistorUser).ToListAsync();
         }
     }
 }

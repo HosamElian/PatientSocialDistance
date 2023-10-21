@@ -44,7 +44,11 @@ namespace PatientSocialDistance.BusinessLogic.Services
         public async Task<Result> GetAllAsync(string UserId)
         {
             var interactions = await _unitOfWork.InteractionRepository.GetAllAsync(UserId);
-            interactions = interactions.ToList();
+            IEnumerable<InteractionForUserDto> interactionList = interactions.Select(x => new InteractionForUserDto
+            {
+                Name = x.VistorUser.Name,
+                Time = x.DurationInMinutes.ToString()
+            }).ToList();
 
             if (interactions.Count() > 0)
             {
@@ -52,7 +56,7 @@ namespace PatientSocialDistance.BusinessLogic.Services
                 {
                     IsCompleted = true,
                     Message = ResultMessages.ProcessCompleted,
-                    Value = interactions,
+                    Value = interactionList,
                 };
             }
             return new Result();

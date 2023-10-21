@@ -26,15 +26,15 @@ namespace PatientSocialDistance.BusinessLogic.Services
             _jwt = Jwt.Value;
         }
 
-        public async Task<AuthModel> RegisterAsync(RegisterModel registerModel)
+        public async Task<AuthModelResponse> RegisterAsync(RegisterModel registerModel)
         {
             if (await _userManager.FindByEmailAsync(registerModel.Email) is not null)
             {
-                return new AuthModel() { Message = "Email is Already register" };
+                return new AuthModelResponse() { Message = "Email is Already register" };
             }
             if (await _userManager.FindByNameAsync(registerModel.Username) is not null)
             {
-                return new AuthModel() { Message = "Username is Already register" };
+                return new AuthModelResponse() { Message = "Username is Already register" };
             }
 
             var user = new ApplicationUser()
@@ -57,7 +57,7 @@ namespace PatientSocialDistance.BusinessLogic.Services
                 {
                     errors += $"{error.Description},";
                 }
-                return new AuthModel() { Message = errors };
+                return new AuthModelResponse() { Message = errors };
             }
 
             await _userManager.AddToRoleAsync(user, "user");
@@ -66,10 +66,11 @@ namespace PatientSocialDistance.BusinessLogic.Services
 
             var userRole = await _userManager.GetRolesAsync(user);
 
-            return new AuthModel()
+            var text = jwtSecurityToken.ValidTo.ToString();
+            return new AuthModelResponse()
             {
                 Email = user.Email,
-                ExpiresOn = jwtSecurityToken.ValidTo,
+                ExpiresOn = text,
                 IsAuthenticated = true,
                 Username = user.UserName,
                 Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),
@@ -77,9 +78,9 @@ namespace PatientSocialDistance.BusinessLogic.Services
             };
         }
 
-        public async Task<AuthModel> GetTokenAsync(TokenRequestModel tokenRequestModel)
+        public async Task<AuthModelResponse> GetTokenAsync(TokenRequestModel tokenRequestModel)
         {
-            var authModel = new AuthModel();
+            var authModel = new AuthModelResponse();
             var user = await _userManager.FindByEmailAsync(tokenRequestModel.Email);
 
             if (user is null || !await _userManager.CheckPasswordAsync(user, tokenRequestModel.Password))
@@ -91,8 +92,9 @@ namespace PatientSocialDistance.BusinessLogic.Services
             var jwtSecurityToken = await CreateJwtToken(user);
             var userRole = await _userManager.GetRolesAsync(user);
 
+            var text = jwtSecurityToken.ValidTo.ToString();
             authModel.Email = user.Email;
-            authModel.ExpiresOn = jwtSecurityToken.ValidTo;
+            authModel.ExpiresOn = text;
             authModel.IsAuthenticated = true;
             authModel.Username = user.UserName;
             authModel.Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);

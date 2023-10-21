@@ -8,5 +8,6 @@ namespace PatientSocialDistance.BusinessLogic.Services.IServices
         Result CreateVisit(VisitDto visitDto);
         Task<Result> VisitApproval(VisitApprovalDto visitApproval);
         Task<Result> GetAllVisits(string userId);
+        Task<Result> GetVisitsByDate(string userId, DateOnly date);
     }
 }

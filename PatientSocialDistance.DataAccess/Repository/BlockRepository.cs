@@ -18,10 +18,11 @@ namespace PatientSocialDistance.DataAccess.Repository
             _context.Blocks.Add(block);
         }
 
-        public async Task<IEnumerable<Block>> GetAllAsync(string UserId)
+        public async Task<IEnumerable<Block>> GetAllAsync(string email)
         {
+            var user = _context.Users.FirstOrDefault(x => x.Email == email);
             var query = _context.Blocks.AsQueryable();
-            return await query.Where(x => x.UserMakeBlockId == UserId && !x.IsDeleted).ToListAsync();
+            return await query.Where(x => x.UserMakeBlockId == user.Id && !x.IsDeleted).Include(x=> x.UserBlocked).ToListAsync();
         }
 
         public async Task<Block> GetByUserIdIdAsync(string UserId, string UserBlockedId)

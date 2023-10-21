@@ -6,7 +6,7 @@ namespace PatientSocialDistance.DataAccess.Repository.IRepository
     public interface IBlockRepository
     {
         Task<Block> GetByUserIdIdAsync(string UserId, string UserBlockedId);
-        Task<IEnumerable<Block>> GetAllAsync(string UserId);
+        Task<IEnumerable<Block>> GetAllAsync(string email);
         
         void Add(Block block);
 

@@ -68,6 +68,23 @@ namespace PatientSocialDistance.BusinessLogic.Services
             return new Result() {Message = ResultMessages.NoVisitExist };
         }
 
+        public async Task<Result> GetVisitsByDate(string userId, DateOnly date)
+        {
+            var visits = await _unitOfWork.VistRepository.GetByIdAndDateAsync(userId, date, true);
+
+            IEnumerable<VisitorDto> visitorsList = visits.Select(v => new VisitorDto
+            {
+                VisitId = v.Id,
+                VisitorName = v.VistorUser.Name,
+                VisitorHospital = v.VistorUser.Hospital,
+                VisitorPhoneNumber = v.VistorUser.PhoneNumber ?? "Not Available",
+            });
+
+            if (visitorsList.Any()) return new Result() {  Value = visitorsList, IsCompleted = true, Message = ResultMessages.ProcessCompleted };
+            
+            return new Result() { Message = ResultMessages.NoVisitExist};
+        }
+
         public async Task<Result> VisitApproval(VisitApprovalDto visitApproval)
         {
             var visit = await _unitOfWork.VistRepository.GetByIdAsync(visitApproval.Id);

@@ -15,10 +15,10 @@ namespace PatientSocialDistance.API.Controllers
         {
             _blockService = blockService;
         }
-        [HttpGet("GellBlockByUser")]
-        public async Task<IActionResult> GetAllByUser(string UserId) 
+        [HttpGet("GetAllByUser")]
+        public async Task<IActionResult> GetAllByUser(string email) 
         {
-            var result = await _blockService.GetAllAsync(UserId);
+            var result = await _blockService.GetAllAsync(email);
 
             if (!result.IsCompleted) return BadRequest(result.Message);
 

@@ -6,7 +6,7 @@ namespace PatientSocialDistance.BusinessLogic.Services.IServices
     public interface IBlockService
     {
         Task<bool> CheckBlockAsync(string userWantToCheck, string userTockeckIt);
-        Task<Result> GetAllAsync(string user);
+        Task<Result> GetAllAsync(string email);
 
         Task<Result> CreateOrDeleteBlockAsync(BlockUserDto blockUserDto);
     }

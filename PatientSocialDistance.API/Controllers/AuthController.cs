@@ -24,6 +24,7 @@ namespace PatientSocialDistance.API.Controllers
             {
                 return BadRequest(ModelState);
             }
+
             //check if data correct
             var result = await _authService.RegisterAsync(model);
             if (!result.IsAuthenticated)
@@ -34,7 +35,7 @@ namespace PatientSocialDistance.API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("token")]
+        [HttpPost("login")]
         public async Task<IActionResult> GetTokenAsync([FromBody] TokenRequestModel model)
         {
             //check if data completed
