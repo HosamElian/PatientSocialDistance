@@ -8,5 +8,6 @@
         public static string NoVisitExist = "No Visit Exist";
         public static string YouDontMakeAnyBlockYet = "You Don't make any Block Yet";
         public static string DateNotValid = "Date Not Valid";
+        public static string NoUserFound = "No User Found";
     }
 }

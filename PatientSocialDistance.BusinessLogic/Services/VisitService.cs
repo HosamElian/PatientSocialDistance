@@ -6,6 +6,7 @@ using PatientSocialDistance.Persistence.DTOs;
 using PatientSocialDistance.Persistence.Enum;
 using PatientSocialDistance.Persistence.Models;
 using PatientSocialDistance.Persistence.NotDbModels;
+using System.Globalization;
 
 namespace PatientSocialDistance.BusinessLogic.Services
 {
@@ -22,20 +23,64 @@ namespace PatientSocialDistance.BusinessLogic.Services
             _userManager = userManager;
         }
         
+
+
+        public async Task<Result> GetAllVisits(string username, bool isApproved = true)
+        {
+            var user = _userManager.FindByNameAsync(username).Result;
+            if (user == null) return new Result();
+
+            var result  = await _unitOfWork.VistRepository.GetAllAsync(user.Id, isApproved);
+            if(result.Any())
+            {
+                return new Result
+                {
+                    IsCompleted = true,
+                    Message = ResultMessages.ProcessCompleted,
+                    Value = result
+                };
+            }
+            return new Result() {Message = ResultMessages.NoVisitExist };
+        }
+
+        public async Task<Result> GetVisitsByDate(string username, DateOnly date, bool isApproved = true)
+        {
+            var user = _userManager.FindByNameAsync(username).Result;
+            if (user == null) return new Result();
+            var visits = await _unitOfWork.VistRepository.GetByIdAndDateAsync(user.Id, date, isApproved);
+
+            IEnumerable<VisitDto> visitorsList = visits.Select(v => new VisitDto
+            {
+                VisitDate = v.VistDate.ToString("dd/MM/yyyy"),
+                VisitedUsername = user.Name,
+                VisitorUsername = v.VistorUser.Name,
+                Message = v.Message,
+            });
+
+            if (visitorsList.Any()) return new Result() {  Value = visitorsList, IsCompleted = true, Message = ResultMessages.ProcessCompleted };
+            
+            return new Result() { Message = ResultMessages.NoVisitExist};
+        }
+
         public Result CreateVisit(VisitDto visitDto)
         {
-            if(_blockService.CheckBlockAsync(visitDto.VistedUserId, visitDto.VistorUserId).Result) return new Result();
-            if(_userManager.FindByIdAsync(visitDto.VistedUserId).Result?.UserTypeId == (int)UserTypeEnum.Doctor) return new Result();
+            if (_blockService.CheckBlockAsync(visitDto.VisitedUsername, visitDto.VisitorUsername).Result) return new Result();
 
-            Vist visit = new Vist
+            var visitorUser = _userManager.FindByNameAsync(visitDto.VisitorUsername).Result;
+            var visitedUser = _userManager.FindByNameAsync(visitDto.VisitedUsername).Result;
+            if (null == visitorUser || null == visitedUser) return new Result();
+
+            DateTime visitDate = DateTime.Parse(visitDto.VisitDate);
+
+            Vist visit = new()
             {
                 IsDeleted = false,
-                VistedUserId = visitDto.VistedUserId,
+                VistedUserId = visitedUser.Id,
                 Approved = false,
-                Reason = visitDto.Reason,
+                Reason = "",
                 Message = visitDto.Message,
-                VistDate = visitDto.VistDate,
-                VistorUserId = visitDto.VistorUserId,
+                VistDate = visitDate,
+                VistorUserId = visitorUser.Id,
                 VistStatusId = (int)VistApprovalStatusEnum.Requested,
             };
 
@@ -52,39 +97,6 @@ namespace PatientSocialDistance.BusinessLogic.Services
 
             return new Result();
         }
-
-        public async Task<Result> GetAllVisits(string userId)
-        {
-            var result  = await _unitOfWork.VistRepository.GetAllAsync(userId);
-            if(result.Count() > 0)
-            {
-                return new Result
-                {
-                    IsCompleted = true,
-                    Message = ResultMessages.ProcessCompleted,
-                    Value = result
-                };
-            }
-            return new Result() {Message = ResultMessages.NoVisitExist };
-        }
-
-        public async Task<Result> GetVisitsByDate(string userId, DateOnly date)
-        {
-            var visits = await _unitOfWork.VistRepository.GetByIdAndDateAsync(userId, date, true);
-
-            IEnumerable<VisitorDto> visitorsList = visits.Select(v => new VisitorDto
-            {
-                VisitId = v.Id,
-                VisitorName = v.VistorUser.Name,
-                VisitorHospital = v.VistorUser.Hospital,
-                VisitorPhoneNumber = v.VistorUser.PhoneNumber ?? "Not Available",
-            });
-
-            if (visitorsList.Any()) return new Result() {  Value = visitorsList, IsCompleted = true, Message = ResultMessages.ProcessCompleted };
-            
-            return new Result() { Message = ResultMessages.NoVisitExist};
-        }
-
         public async Task<Result> VisitApproval(VisitApprovalDto visitApproval)
         {
             var visit = await _unitOfWork.VistRepository.GetByIdAsync(visitApproval.Id);

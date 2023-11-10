@@ -3,16 +3,25 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace PatientSocialDistance.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class AddToNewDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "Hospital");
+
+            migrationBuilder.EnsureSchema(
+                name: "Security");
+
             migrationBuilder.CreateTable(
-                name: "AspNetRoles",
+                name: "Roles",
+                schema: "Security",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
@@ -22,11 +31,38 @@ namespace PatientSocialDistance.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetRoles", x => x.Id);
+                    table.PrimaryKey("PK_Roles", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Users",
+                schema: "Security",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "UserTypes",
+                schema: "Hospital",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -41,6 +77,7 @@ namespace PatientSocialDistance.DataAccess.Migrations
 
             migrationBuilder.CreateTable(
                 name: "VistApprovalStatuses",
+                schema: "Hospital",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -54,7 +91,8 @@ namespace PatientSocialDistance.DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetRoleClaims",
+                name: "RoleClaims",
+                schema: "Security",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -65,17 +103,19 @@ namespace PatientSocialDistance.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetRoleClaims", x => x.Id);
+                    table.PrimaryKey("PK_RoleClaims", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
+                        name: "FK_RoleClaims_Roles_RoleId",
                         column: x => x.RoleId,
-                        principalTable: "AspNetRoles",
+                        principalSchema: "Security",
+                        principalTable: "Roles",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateTable(
                 name: "AspNetUsers",
+                schema: "Hospital",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
@@ -108,18 +148,53 @@ namespace PatientSocialDistance.DataAccess.Migrations
                     table.ForeignKey(
                         name: "FK_AspNetUsers_AspNetUsers_ApplicationUserId",
                         column: x => x.ApplicationUserId,
+                        principalSchema: "Hospital",
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_AspNetUsers_UserTypes_UserTypeId",
                         column: x => x.UserTypeId,
+                        principalSchema: "Hospital",
                         principalTable: "UserTypes",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetUserClaims",
+                name: "Blocks",
+                schema: "Hospital",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    UserMakeBlockId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    UserBlockedId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    BlockedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Blocks", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Blocks_AspNetUsers_UserBlockedId",
+                        column: x => x.UserBlockedId,
+                        principalSchema: "Hospital",
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.NoAction);
+                    table.ForeignKey(
+                        name: "FK_Blocks_AspNetUsers_UserMakeBlockId",
+                        column: x => x.UserMakeBlockId,
+                        principalSchema: "Hospital",
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.NoAction);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserClaims",
+                schema: "Security",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -130,17 +205,19 @@ namespace PatientSocialDistance.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUserClaims", x => x.Id);
+                    table.PrimaryKey("PK_UserClaims", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AspNetUserClaims_AspNetUsers_UserId",
+                        name: "FK_UserClaims_AspNetUsers_UserId",
                         column: x => x.UserId,
+                        principalSchema: "Hospital",
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetUserLogins",
+                name: "UserLogins",
+                schema: "Security",
                 columns: table => new
                 {
                     LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
@@ -150,17 +227,19 @@ namespace PatientSocialDistance.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUserLogins", x => new { x.LoginProvider, x.ProviderKey });
+                    table.PrimaryKey("PK_UserLogins", x => new { x.LoginProvider, x.ProviderKey });
                     table.ForeignKey(
-                        name: "FK_AspNetUserLogins_AspNetUsers_UserId",
+                        name: "FK_UserLogins_AspNetUsers_UserId",
                         column: x => x.UserId,
+                        principalSchema: "Hospital",
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetUserRoles",
+                name: "UserRoles",
+                schema: "Security",
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
@@ -168,23 +247,26 @@ namespace PatientSocialDistance.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUserRoles", x => new { x.UserId, x.RoleId });
+                    table.PrimaryKey("PK_UserRoles", x => new { x.UserId, x.RoleId });
                     table.ForeignKey(
-                        name: "FK_AspNetUserRoles_AspNetRoles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "AspNetRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_AspNetUserRoles_AspNetUsers_UserId",
+                        name: "FK_UserRoles_AspNetUsers_UserId",
                         column: x => x.UserId,
+                        principalSchema: "Hospital",
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
+                    table.ForeignKey(
+                        name: "FK_UserRoles_Roles_RoleId",
+                        column: x => x.RoleId,
+                        principalSchema: "Security",
+                        principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetUserTokens",
+                name: "UserTokens",
+                schema: "Security",
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
@@ -194,17 +276,19 @@ namespace PatientSocialDistance.DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
+                    table.PrimaryKey("PK_UserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
                     table.ForeignKey(
-                        name: "FK_AspNetUserTokens_AspNetUsers_UserId",
+                        name: "FK_UserTokens_AspNetUsers_UserId",
                         column: x => x.UserId,
+                        principalSchema: "Hospital",
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Vists",
+                schema: "Hospital",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -224,18 +308,21 @@ namespace PatientSocialDistance.DataAccess.Migrations
                     table.ForeignKey(
                         name: "FK_Vists_AspNetUsers_VistedUserId",
                         column: x => x.VistedUserId,
+                        principalSchema: "Hospital",
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
                         name: "FK_Vists_AspNetUsers_VistorUserId",
                         column: x => x.VistorUserId,
+                        principalSchema: "Hospital",
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
                         name: "FK_Vists_VistApprovalStatuses_VistStatusId",
                         column: x => x.VistStatusId,
+                        principalSchema: "Hospital",
                         principalTable: "VistApprovalStatuses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.NoAction);
@@ -243,6 +330,7 @@ namespace PatientSocialDistance.DataAccess.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Interactions",
+                schema: "Hospital",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -251,7 +339,7 @@ namespace PatientSocialDistance.DataAccess.Migrations
                     VistId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     VistorUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    InteractionDurationInMinutes = table.Column<int>(type: "int", nullable: false),
+                    DurationInMinutes = table.Column<int>(type: "int", nullable: false),
                     InteractionDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -260,99 +348,160 @@ namespace PatientSocialDistance.DataAccess.Migrations
                     table.ForeignKey(
                         name: "FK_Interactions_AspNetUsers_UserId",
                         column: x => x.UserId,
+                        principalSchema: "Hospital",
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
                         name: "FK_Interactions_AspNetUsers_VistorUserId",
                         column: x => x.VistorUserId,
+                        principalSchema: "Hospital",
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
                         name: "FK_Interactions_Vists_VistId",
                         column: x => x.VistId,
+                        principalSchema: "Hospital",
                         principalTable: "Vists",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.NoAction);
                 });
 
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetRoleClaims_RoleId",
-                table: "AspNetRoleClaims",
-                column: "RoleId");
+            migrationBuilder.InsertData(
+                schema: "Security",
+                table: "Roles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[,]
+                {
+                    { "3dea862e-bc8c-4cd6-a577-ac65509757e7", "ff84e631-d455-44f6-b1d7-2395501f41ef", "Admin", "ADMIN" },
+                    { "c5000e40-4357-4895-8689-35e2ffff0cae", "9805afd8-c511-4285-bad4-9a87d5efd2d3", "User", "USER" }
+                });
 
-            migrationBuilder.CreateIndex(
-                name: "RoleNameIndex",
-                table: "AspNetRoles",
-                column: "NormalizedName",
-                unique: true,
-                filter: "[NormalizedName] IS NOT NULL");
+            migrationBuilder.InsertData(
+                schema: "Hospital",
+                table: "UserTypes",
+                columns: new[] { "Id", "IsDeleted", "Name" },
+                values: new object[,]
+                {
+                    { 1, false, "Doctor" },
+                    { 2, false, "Patient" }
+                });
 
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserClaims_UserId",
-                table: "AspNetUserClaims",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserLogins_UserId",
-                table: "AspNetUserLogins",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserRoles_RoleId",
-                table: "AspNetUserRoles",
-                column: "RoleId");
+            migrationBuilder.InsertData(
+                schema: "Hospital",
+                table: "VistApprovalStatuses",
+                columns: new[] { "Id", "IsDeleted", "Name" },
+                values: new object[,]
+                {
+                    { 1, false, "Requested" },
+                    { 2, false, "Accepted" },
+                    { 3, false, "Reject" }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "EmailIndex",
+                schema: "Hospital",
                 table: "AspNetUsers",
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUsers_ApplicationUserId",
+                schema: "Hospital",
                 table: "AspNetUsers",
                 column: "ApplicationUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUsers_UserTypeId",
+                schema: "Hospital",
                 table: "AspNetUsers",
                 column: "UserTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
+                schema: "Hospital",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Blocks_UserBlockedId",
+                schema: "Hospital",
+                table: "Blocks",
+                column: "UserBlockedId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Blocks_UserMakeBlockId",
+                schema: "Hospital",
+                table: "Blocks",
+                column: "UserMakeBlockId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Interactions_UserId",
+                schema: "Hospital",
                 table: "Interactions",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Interactions_VistId",
+                schema: "Hospital",
                 table: "Interactions",
                 column: "VistId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Interactions_VistorUserId",
+                schema: "Hospital",
                 table: "Interactions",
                 column: "VistorUserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RoleClaims_RoleId",
+                schema: "Security",
+                table: "RoleClaims",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "RoleNameIndex",
+                schema: "Security",
+                table: "Roles",
+                column: "NormalizedName",
+                unique: true,
+                filter: "[NormalizedName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserClaims_UserId",
+                schema: "Security",
+                table: "UserClaims",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserLogins_UserId",
+                schema: "Security",
+                table: "UserLogins",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserRoles_RoleId",
+                schema: "Security",
+                table: "UserRoles",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Vists_VistedUserId",
+                schema: "Hospital",
                 table: "Vists",
                 column: "VistedUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Vists_VistorUserId",
+                schema: "Hospital",
                 table: "Vists",
                 column: "VistorUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Vists_VistStatusId",
+                schema: "Hospital",
                 table: "Vists",
                 column: "VistStatusId");
         }
@@ -361,37 +510,56 @@ namespace PatientSocialDistance.DataAccess.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AspNetRoleClaims");
+                name: "Blocks",
+                schema: "Hospital");
 
             migrationBuilder.DropTable(
-                name: "AspNetUserClaims");
+                name: "Interactions",
+                schema: "Hospital");
 
             migrationBuilder.DropTable(
-                name: "AspNetUserLogins");
+                name: "RoleClaims",
+                schema: "Security");
 
             migrationBuilder.DropTable(
-                name: "AspNetUserRoles");
+                name: "UserClaims",
+                schema: "Security");
 
             migrationBuilder.DropTable(
-                name: "AspNetUserTokens");
+                name: "UserLogins",
+                schema: "Security");
 
             migrationBuilder.DropTable(
-                name: "Interactions");
+                name: "UserRoles",
+                schema: "Security");
 
             migrationBuilder.DropTable(
-                name: "AspNetRoles");
+                name: "Users",
+                schema: "Security");
 
             migrationBuilder.DropTable(
-                name: "Vists");
+                name: "UserTokens",
+                schema: "Security");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Vists",
+                schema: "Hospital");
 
             migrationBuilder.DropTable(
-                name: "VistApprovalStatuses");
+                name: "Roles",
+                schema: "Security");
 
             migrationBuilder.DropTable(
-                name: "UserTypes");
+                name: "AspNetUsers",
+                schema: "Hospital");
+
+            migrationBuilder.DropTable(
+                name: "VistApprovalStatuses",
+                schema: "Hospital");
+
+            migrationBuilder.DropTable(
+                name: "UserTypes",
+                schema: "Hospital");
         }
     }
 }

@@ -5,13 +5,13 @@ namespace PatientSocialDistance.Persistence.DTOs
     public class VisitDto
     {
         [Required]
-        public string VistedUserId { get; set; }
+        public string VisitedUsername { get; set; }
         [Required]
-        public string VistorUserId { get; set; }
+        public string VisitorUsername { get; set; }
         [Required]
-        public DateTime VistDate { get; set; }
+        public string VisitDate { get; set; }
         [Required]
-        public string Reason { get; set; }
+        //public string? Reason { get; set; }
         public string? Message { get; set; }
     }
 }

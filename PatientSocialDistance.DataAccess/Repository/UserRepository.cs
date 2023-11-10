@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PatientSocialDistance.DataAccess.Data;
 using PatientSocialDistance.DataAccess.Repository.IRepository;
+using PatientSocialDistance.Persistence.DTOs;
 using PatientSocialDistance.Persistence.Models;
 
 namespace PatientSocialDistance.DataAccess.Repository
@@ -17,6 +18,14 @@ namespace PatientSocialDistance.DataAccess.Repository
         {
             return await _context.ApplicationUsers.AsQueryable().ToListAsync();
             
+        }
+
+        public async Task<IEnumerable<UserFroSearchDTO>> GetbyUsernameAsync(string username)
+        {
+            return await _context.ApplicationUsers.AsQueryable()
+                .Where(x=> x.UserName.Contains(username))
+                .Select(u => new UserFroSearchDTO { Name =  u.UserName })
+                .ToListAsync();
         }
     }
 }

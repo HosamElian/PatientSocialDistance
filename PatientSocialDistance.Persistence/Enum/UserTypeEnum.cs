@@ -2,7 +2,7 @@
 {
     public enum UserTypeEnum
     {
-        Patient = 1,
-        Doctor = 2
+        Doctor = 1,
+        Patient = 2,
     }
 }

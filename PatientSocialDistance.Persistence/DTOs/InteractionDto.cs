@@ -7,12 +7,12 @@ namespace PatientSocialDistance.Persistence.DTOs
         [Required]
         public int VistId { get; set; }
         [Required]
-        public string UserId { get; set; }
+        public string Username { get; set; }
         [Required]
-        public string VistorUserId { get; set; }
+        public string VistorName { get; set; }
         [Required]
         public int DurationInMinutes { get; set; }
         [Required]
-        public DateTime InteractionDate { get; set; }
+        public string InteractionDate { get; set; }
     }
 }

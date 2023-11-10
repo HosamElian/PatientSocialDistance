@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using PatientSocialDistance.BusinessLogic.Services;
 using PatientSocialDistance.BusinessLogic.Services.IServices;
 using PatientSocialDistance.Persistence.NotDbModels;
 
@@ -10,12 +11,26 @@ namespace PatientSocialDistance.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IUserService _userService;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, IUserService userService)
         {
             _authService = authService;
+            _userService = userService;
         }
 
+        [HttpGet("GetUsers")]
+        public async Task<IActionResult> GetUsers(string username)
+        {
+
+            if (string.IsNullOrEmpty(username)) return BadRequest("Can't Searching without writing any name");
+
+            var result = await _userService.GetUsers(username);
+
+            if (!result.IsCompleted) return BadRequest(result.Message);
+
+            return Ok(result.Value);
+        }
         [HttpPost("register")]
         public async Task<IActionResult> RegisterAsync([FromBody]RegisterModel model)
         {

@@ -1,5 +1,4 @@
-﻿using PatientSocialDistance.Persistence.DTOs;
-using PatientSocialDistance.Persistence.Models;
+﻿using Microsoft.AspNetCore.Identity;
 using PatientSocialDistance.Persistence.NotDbModels;
 using System;
 using System.Collections.Generic;
@@ -9,9 +8,8 @@ using System.Threading.Tasks;
 
 namespace PatientSocialDistance.BusinessLogic.Services.IServices
 {
-    public interface IInteractionService
+    public interface IUserService
     {
-        Result Add(InteractionDto interaction);
-        Task<Result> GetAllAsync(string username);
+        Task<Result> GetUsers(string username);
     }
 }

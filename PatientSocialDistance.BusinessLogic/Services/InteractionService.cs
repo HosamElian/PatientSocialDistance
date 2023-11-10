@@ -1,4 +1,5 @@
-﻿using PatientSocialDistance.BusinessLogic.Services.IServices;
+﻿using Microsoft.AspNetCore.Identity;
+using PatientSocialDistance.BusinessLogic.Services.IServices;
 using PatientSocialDistance.DataAccess.Repository.IRepository;
 using PatientSocialDistance.Persistence;
 using PatientSocialDistance.Persistence.DTOs;
@@ -10,19 +11,26 @@ namespace PatientSocialDistance.BusinessLogic.Services
     public class InteractionService : IInteractionService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public InteractionService(IUnitOfWork unitOfWork)
+        public InteractionService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager)
         {
             _unitOfWork = unitOfWork;
+            _userManager = userManager;
         }
         public Result Add(InteractionDto interactionDto)
         {
+            DateTime interactonDate = DateTime.Parse(interactionDto.InteractionDate);
+            var user = _userManager.FindByNameAsync(interactionDto.Username).Result;
+            var vistor = _userManager.FindByNameAsync(interactionDto.VistorName).Result;
+            if (user == null || vistor == null) return new Result();
+
             var interaction = new Interaction()
             {
-                InteractionDate = interactionDto.InteractionDate,
+                InteractionDate = interactonDate,
                 DurationInMinutes = interactionDto.DurationInMinutes,
-                UserId = interactionDto.UserId,
-                VistorUserId = interactionDto.VistorUserId,
+                UserId = user.Id,
+                VistorUserId = vistor.Id,
                 VistId = interactionDto.VistId,
                 IsDeleted = false,
 
@@ -41,16 +49,18 @@ namespace PatientSocialDistance.BusinessLogic.Services
             return new Result();
         }
 
-        public async Task<Result> GetAllAsync(string UserId)
+        public async Task<Result> GetAllAsync(string username)
         {
-            var interactions = await _unitOfWork.InteractionRepository.GetAllAsync(UserId);
-            IEnumerable<InteractionForUserDto> interactionList = interactions.Select(x => new InteractionForUserDto
+            var user = _userManager.FindByNameAsync(username).Result;
+            if(user == null) return new Result();
+            var interactions = await _unitOfWork.InteractionRepository.GetAllAsync(user.Id);
+            List<InteractionForUserDto> interactionList = interactions.Select(x => new InteractionForUserDto
             {
                 Name = x.VistorUser.Name,
-                Time = x.DurationInMinutes.ToString()
+                Time = x.DurationInMinutes
             }).ToList();
 
-            if (interactions.Count() > 0)
+            if (interactions.Any())
             {
                 return new Result()
                 {

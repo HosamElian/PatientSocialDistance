@@ -38,7 +38,7 @@ namespace PatientSocialDistance.BusinessLogic.Services
             {
                 if (blockUserDto.MakeBlock)
                 {
-                    Block block = new Block
+                    Block block = new()
                     {
                         IsDeleted = false,
                         IsActive = true,
@@ -70,11 +70,13 @@ namespace PatientSocialDistance.BusinessLogic.Services
             return false;
         }
 
-        public async Task<Result> GetAllAsync(string email)
+        public async Task<Result> GetAllAsync(string username)
         {
-            var result = await _unitOfWork.BlockRepository.GetAllAsync(email);
+            var user = _userManager.FindByNameAsync(username).Result;
+            if (user == null) return new Result(); 
+            var result = await _unitOfWork.BlockRepository.GetAllAsync(user.Id);
 
-            if (result.Count() <= 0) return new Result() { Message = ResultMessages.YouDontMakeAnyBlockYet };
+            if (!result.Any()) return new Result() { Message = ResultMessages.YouDontMakeAnyBlockYet };
 
             List<BlockedUserDTO> blockUserDtos = result.ToList().Select(b=> new BlockedUserDTO
             {

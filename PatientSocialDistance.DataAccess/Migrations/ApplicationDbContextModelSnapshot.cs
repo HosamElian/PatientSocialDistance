@@ -17,6 +17,7 @@ namespace PatientSocialDistance.DataAccess.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("Hospital")
                 .HasAnnotation("ProductVersion", "7.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
@@ -46,7 +47,23 @@ namespace PatientSocialDistance.DataAccess.Migrations
                         .HasDatabaseName("RoleNameIndex")
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
-                    b.ToTable("AspNetRoles", (string)null);
+                    b.ToTable("Roles", "Security");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "3dea862e-bc8c-4cd6-a577-ac65509757e7",
+                            ConcurrencyStamp = "ff84e631-d455-44f6-b1d7-2395501f41ef",
+                            Name = "Admin",
+                            NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = "c5000e40-4357-4895-8689-35e2ffff0cae",
+                            ConcurrencyStamp = "9805afd8-c511-4285-bad4-9a87d5efd2d3",
+                            Name = "User",
+                            NormalizedName = "USER"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -71,7 +88,7 @@ namespace PatientSocialDistance.DataAccess.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetRoleClaims", (string)null);
+                    b.ToTable("RoleClaims", "Security");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -96,7 +113,7 @@ namespace PatientSocialDistance.DataAccess.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserClaims", (string)null);
+                    b.ToTable("UserClaims", "Security");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
@@ -118,7 +135,7 @@ namespace PatientSocialDistance.DataAccess.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AspNetUserLogins", (string)null);
+                    b.ToTable("UserLogins", "Security");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
@@ -133,7 +150,7 @@ namespace PatientSocialDistance.DataAccess.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("AspNetUserRoles", (string)null);
+                    b.ToTable("UserRoles", "Security");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -152,7 +169,7 @@ namespace PatientSocialDistance.DataAccess.Migrations
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("AspNetUserTokens", (string)null);
+                    b.ToTable("UserTokens", "Security");
                 });
 
             modelBuilder.Entity("PatientSocialDistance.Persistence.Models.ApplicationUser", b =>
@@ -249,7 +266,7 @@ namespace PatientSocialDistance.DataAccess.Migrations
 
                     b.HasIndex("UserTypeId");
 
-                    b.ToTable("AspNetUsers", (string)null);
+                    b.ToTable("Users", "Security");
                 });
 
             modelBuilder.Entity("PatientSocialDistance.Persistence.Models.Block", b =>
@@ -262,6 +279,9 @@ namespace PatientSocialDistance.DataAccess.Migrations
 
                     b.Property<DateTime>("BlockedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -280,7 +300,7 @@ namespace PatientSocialDistance.DataAccess.Migrations
 
                     b.HasIndex("UserMakeBlockId");
 
-                    b.ToTable("Blocks");
+                    b.ToTable("Blocks", "Hospital");
                 });
 
             modelBuilder.Entity("PatientSocialDistance.Persistence.Models.Interaction", b =>
@@ -319,7 +339,7 @@ namespace PatientSocialDistance.DataAccess.Migrations
 
                     b.HasIndex("VistorUserId");
 
-                    b.ToTable("Interactions");
+                    b.ToTable("Interactions", "Hospital");
                 });
 
             modelBuilder.Entity("PatientSocialDistance.Persistence.Models.UserType", b =>
@@ -339,7 +359,21 @@ namespace PatientSocialDistance.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserTypes");
+                    b.ToTable("UserTypes", "Hospital");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            IsDeleted = false,
+                            Name = "Doctor"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            IsDeleted = false,
+                            Name = "Patient"
+                        });
                 });
 
             modelBuilder.Entity("PatientSocialDistance.Persistence.Models.Vist", b =>
@@ -386,7 +420,7 @@ namespace PatientSocialDistance.DataAccess.Migrations
 
                     b.HasIndex("VistorUserId");
 
-                    b.ToTable("Vists");
+                    b.ToTable("Vists", "Hospital");
                 });
 
             modelBuilder.Entity("PatientSocialDistance.Persistence.Models.VistApprovalStatus", b =>
@@ -406,7 +440,27 @@ namespace PatientSocialDistance.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("VistApprovalStatuses");
+                    b.ToTable("VistApprovalStatuses", "Hospital");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            IsDeleted = false,
+                            Name = "Requested"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            IsDeleted = false,
+                            Name = "Accepted"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            IsDeleted = false,
+                            Name = "Reject"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -477,21 +531,21 @@ namespace PatientSocialDistance.DataAccess.Migrations
 
             modelBuilder.Entity("PatientSocialDistance.Persistence.Models.Block", b =>
                 {
-                    b.HasOne("PatientSocialDistance.Persistence.Models.ApplicationUser", "UserBlockedId")
+                    b.HasOne("PatientSocialDistance.Persistence.Models.ApplicationUser", "UserBlocked")
                         .WithMany()
                         .HasForeignKey("UserBlockedId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("PatientSocialDistance.Persistence.Models.ApplicationUser", "UserMakeBlockId")
+                    b.HasOne("PatientSocialDistance.Persistence.Models.ApplicationUser", "UserMakeBlock")
                         .WithMany()
                         .HasForeignKey("UserMakeBlockId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("UserBlockedId");
+                    b.Navigation("UserBlocked");
 
-                    b.Navigation("UserMakeBlockId");
+                    b.Navigation("UserMakeBlock");
                 });
 
             modelBuilder.Entity("PatientSocialDistance.Persistence.Models.Interaction", b =>

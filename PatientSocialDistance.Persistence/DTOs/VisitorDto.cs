@@ -4,8 +4,8 @@
     {
         public int VisitId { get; set; }
         public string VisitorName { get; set; }
-        public string VisitorHospital { get; set; }
-        public string VisitorPhoneNumber { get; set; }
+        public string VisitDate { get; set; }
+        public string VisitMessage { get; set; }
 
     }
 }

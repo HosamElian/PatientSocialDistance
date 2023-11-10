@@ -1,4 +1,5 @@
-﻿using PatientSocialDistance.Persistence.Models;
+﻿using PatientSocialDistance.Persistence.DTOs;
+using PatientSocialDistance.Persistence.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +11,9 @@ namespace PatientSocialDistance.DataAccess.Repository.IRepository
     public interface IVistRepository
     {
         
-        Task<IEnumerable<Vist>> GetAllAsync(string UserId);
+        Task<IEnumerable<VisitorDto>> GetAllAsync(string userId, bool isApproved);
         Task<Vist> GetByIdAsync(int Id);
-        Task<IEnumerable<Vist>> GetByIdAndDateAsync(string UserId, DateOnly date, bool? approved = false);
+        Task<IEnumerable<Vist>> GetByIdAndDateAsync(string UserId, DateOnly date, bool? approved = true);
         void Add(Vist vist);
 
     }

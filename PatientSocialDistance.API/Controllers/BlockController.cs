@@ -16,9 +16,9 @@ namespace PatientSocialDistance.API.Controllers
             _blockService = blockService;
         }
         [HttpGet("GetAllByUser")]
-        public async Task<IActionResult> GetAllByUser(string email) 
+        public async Task<IActionResult> GetAllByUser(string username) 
         {
-            var result = await _blockService.GetAllAsync(email);
+            var result = await _blockService.GetAllAsync(username);
 
             if (!result.IsCompleted) return BadRequest(result.Message);
 

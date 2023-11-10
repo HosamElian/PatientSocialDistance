@@ -7,7 +7,7 @@ namespace PatientSocialDistance.BusinessLogic.Services.IServices
     {
         Result CreateVisit(VisitDto visitDto);
         Task<Result> VisitApproval(VisitApprovalDto visitApproval);
-        Task<Result> GetAllVisits(string userId);
-        Task<Result> GetVisitsByDate(string userId, DateOnly date);
+        Task<Result> GetAllVisits(string username, bool isApproved = true);
+        Task<Result> GetVisitsByDate(string username, DateOnly date, bool isApproved = true);
     }
 }

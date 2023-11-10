@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace PatientSocialDistance.Persistence.DTOs
 {
-    public class InteractionForUserDto
+    public class UserFroSearchDTO
     {
         public string Name { get; set; }
-        public int Time { get; set; }
     }
 }

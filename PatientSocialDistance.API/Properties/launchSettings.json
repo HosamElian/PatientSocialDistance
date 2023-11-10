@@ -37,9 +37,7 @@
     },
     "Android": {
       "commandName": "Project",
-      "dotnetRunMessages": true,
-      "launchBrowser": true,
-      "applicationUrl": "https://192.168.1.9:7204",
+      "applicationUrl": "https://192.168.1.2:7204;http://192.168.1.2:5202",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
