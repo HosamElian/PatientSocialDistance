@@ -41,7 +41,7 @@ namespace PatientSocialDistance.DataAccess.Repository
             return await query
                             .Where(x => x.VistedUserId == UserId
                                      && x.Approved == approved
-                                     && x.StartVistDate.Year  == date.Year
+                                     && x.StartVistDate.Year == date.Year
                                      && x.StartVistDate.Month == date.Month
                                      && x.StartVistDate.Day == date.Day)
                             .Include(x => x.VistorUser)
@@ -52,7 +52,7 @@ namespace PatientSocialDistance.DataAccess.Repository
                                 VisitorUsername = v.VistorUser.Name,
                                 Message = v.Message,
                                 StartTime = TimeOnly.FromDateTime(v.StartVistDate).ToString(),
-                                DurationInMinutes = v.DurationInMinutes
+                                DurationInMinutes = v.DurationInMinutes,
                             })
                             .ToListAsync();
         }

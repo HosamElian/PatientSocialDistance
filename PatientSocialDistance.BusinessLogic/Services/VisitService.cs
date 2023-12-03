@@ -6,6 +6,7 @@ using PatientSocialDistance.Persistence.DTOs;
 using PatientSocialDistance.Persistence.Enum;
 using PatientSocialDistance.Persistence.Models;
 using PatientSocialDistance.Persistence.NotDbModels;
+using System;
 using System.Globalization;
 
 namespace PatientSocialDistance.BusinessLogic.Services
@@ -54,7 +55,7 @@ namespace PatientSocialDistance.BusinessLogic.Services
 
             DateOnly visitDate = DateOnly.FromDateTime(DateTime.Parse(request.Date));
 
-            var visits = await _unitOfWork.VistRepository.GetByIdAndDateAsync(user.Id, user.Name, visitDate, request.IsApproved);
+            var visits = await _unitOfWork.VistRepository.GetByIdAndDateAsync(user.Id, user.UserName, visitDate, request.IsApproved);
 
 
             if (visits.Any()) return new Result() { Value = visits, IsCompleted = true, Message = ResultMessages.ProcessCompleted };
@@ -68,12 +69,12 @@ namespace PatientSocialDistance.BusinessLogic.Services
             DateTime visitDate = DateTime.Now;
             try
             {
-                visitDate = DateTime.ParseExact(visitDto.VisitDate, "yyyyMMddHHmmss", null);
-
-            }catch (Exception ex) { int x = 1; }
-
+                var timeOnly = TimeOnly.Parse(visitDto.VisitTime);
+                var dateOnly = DateOnly.Parse(visitDto.VisitDate);
+                visitDate = new DateTime(dateOnly.Year, dateOnly.Month, dateOnly.Day, timeOnly.Hour, timeOnly.Minute, timeOnly.Second);
+            }
+            catch (Exception ex) { int x = 1; }
             if (await _unitOfWork.VistRepository.IsTheresVisitInSameTime(visitDate)) return new Result() { Value = 400 };
-
             var visitorUser = _userManager.FindByNameAsync(visitDto.VisitorUsername).Result;
             var visitedUser = _userManager.FindByNameAsync(visitDto.VisitedUsername).Result;
             if (null == visitorUser || null == visitedUser) return new Result();
@@ -92,6 +93,13 @@ namespace PatientSocialDistance.BusinessLogic.Services
             };
 
             _unitOfWork.VistRepository.Add(visit);
+            await _notificationService.AddNotificationNoSave(new NotificationDTO
+            {
+                VisitId = visit.Id,
+                MakeActionUsername = visitDto.VisitorUsername,
+                TargetUsername = visitDto.VisitedUsername,
+                Message = $"{visitDto.VisitorUsername} request to see you at {visitDto.VisitDate}"
+            });
             if (_unitOfWork.Save().Result)
             {
                 return new Result

@@ -32,7 +32,7 @@ namespace PatientSocialDistance.API.Controllers
 
         [HttpPost("GetAllVisitsByDate")] 
         public async Task<IActionResult> GetAllVisitsByDate(GetVisitByDateRequest request)
-        {
+            {
 
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
