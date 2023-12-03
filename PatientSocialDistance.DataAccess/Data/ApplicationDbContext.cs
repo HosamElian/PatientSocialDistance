@@ -18,6 +18,8 @@ namespace PatientSocialDistance.DataAccess.Data
         public DbSet<Vist> Vists { get; set; }
         public DbSet<VistApprovalStatus> VistApprovalStatuses { get; set; }
         public DbSet<Block> Blocks { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -65,6 +67,7 @@ namespace PatientSocialDistance.DataAccess.Data
                 new VistApprovalStatus() { Id = 1, Name = "Requested", IsDeleted = false },
                 new VistApprovalStatus() { Id = 2, Name = "Accepted", IsDeleted = false },
                 new VistApprovalStatus() { Id = 3, Name = "Reject", IsDeleted = false },
+                new VistApprovalStatus() { Id = 4, Name = "WaitForRequesterToApprove", IsDeleted = false },
             });
 
         }

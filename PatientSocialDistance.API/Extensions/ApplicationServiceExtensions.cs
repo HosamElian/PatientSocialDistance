@@ -20,6 +20,7 @@ namespace PatientSocialDistance.API.Extensions
             services.AddScoped<IVisitService, VisitService>();
             services.AddScoped<IBlockService, BlockService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<INotificationService, NotificationService>();
 
             services.AddCors();
             return services;

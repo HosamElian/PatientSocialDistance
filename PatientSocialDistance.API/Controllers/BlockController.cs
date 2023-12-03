@@ -26,7 +26,7 @@ namespace PatientSocialDistance.API.Controllers
         }
 
         [HttpPost("CreateOrDeleteBlock")]
-        public async Task<IActionResult> CreateOrDeleteBlock(BlockUserDto blockUserDto)
+        public async Task<IActionResult> CreateOrDeleteBlock(BlockUserDTO blockUserDto)
         {
             var result = await _blockService.CreateOrDeleteBlockAsync(blockUserDto);
 

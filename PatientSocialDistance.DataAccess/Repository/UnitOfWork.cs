@@ -19,6 +19,7 @@ namespace PatientSocialDistance.DataAccess.Repository
             RoleRepository = new RoleRepository(context);
             UserRepository = new UserRepository(context);
             VistRepository = new VistRepository(context);
+            NotificationRepository = new NotificationRepository(context);
             _context = context;
         }
         public IBlockRepository BlockRepository { get; private set; }
@@ -30,6 +31,8 @@ namespace PatientSocialDistance.DataAccess.Repository
         public IUserRepository UserRepository { get; private set; }
 
         public IVistRepository VistRepository { get; private set; }
+
+        public INotificationRepository NotificationRepository { get; private set; }
 
         public async Task<bool> Save()
         {

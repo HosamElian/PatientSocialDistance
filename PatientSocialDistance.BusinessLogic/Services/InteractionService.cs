@@ -12,26 +12,42 @@ namespace PatientSocialDistance.BusinessLogic.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IVisitService _visitService;
 
-        public InteractionService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager)
+        public InteractionService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IVisitService visitService)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
+            _visitService = visitService;
         }
-        public Result Add(InteractionDto interactionDto)
+        public Result Add(string[] names)
         {
-            DateTime interactonDate = DateTime.Parse(interactionDto.InteractionDate);
-            var user = _userManager.FindByNameAsync(interactionDto.Username).Result;
-            var vistor = _userManager.FindByNameAsync(interactionDto.VistorName).Result;
+            Vist? visit = null;
+            names.ToList().ForEach(name =>
+          {
+              var check = _visitService.HasVisit(name);
+              if (check != null)
+              {
+                  visit = _visitService.HasVisit(name);
+              }
+          });
+            if (visit == null) return new Result();
+
+            DateTime interactonDate = visit.StartVistDate;
+            var user = _userManager.FindByIdAsync(visit.VistedUserId).Result;
+            var vistor = _userManager.FindByIdAsync(visit.VistorUserId).Result;
+
+
+
             if (user == null || vistor == null) return new Result();
 
             var interaction = new Interaction()
             {
                 InteractionDate = interactonDate,
-                DurationInMinutes = interactionDto.DurationInMinutes,
+                DurationInMinutes = visit.DurationInMinutes,
                 UserId = user.Id,
                 VistorUserId = vistor.Id,
-                VistId = interactionDto.VistId,
+                VistId = visit.Id,
                 IsDeleted = false,
 
             };
@@ -43,7 +59,6 @@ namespace PatientSocialDistance.BusinessLogic.Services
                 {
                     IsCompleted = true,
                     Message = ResultMessages.ProcessCompleted,
-                    Value = interactionDto,
                 };
             }
             return new Result();
@@ -52,12 +67,18 @@ namespace PatientSocialDistance.BusinessLogic.Services
         public async Task<Result> GetAllAsync(string username)
         {
             var user = _userManager.FindByNameAsync(username).Result;
-            if(user == null) return new Result();
+            if (user == null) return new Result();
             var interactions = await _unitOfWork.InteractionRepository.GetAllAsync(user.Id);
-            List<InteractionForUserDto> interactionList = interactions.Select(x => new InteractionForUserDto
+            var interactionsGrouppedById = interactions.GroupBy(x => x.VistorUserId).Select(x => new 
             {
-                Name = x.VistorUser.Name,
-                Time = x.DurationInMinutes
+                x.First().VistorUser.Name,
+                Time = x.Sum(u=> u.DurationInMinutes),
+
+            }).ToList();
+            List<InteractionForUserDto> interactionList = interactionsGrouppedById.Select(x => new InteractionForUserDto
+            {
+                Name = x.Name,
+                Time = x.Time
             }).ToList();
 
             if (interactions.Any())
@@ -70,6 +91,27 @@ namespace PatientSocialDistance.BusinessLogic.Services
                 };
             }
             return new Result();
+        }
+
+        public Result returnDuration(string[] names)
+        {
+            Vist visit = new();
+            names.ToList().ForEach(name =>
+            {
+                var check = _visitService.HasVisit(name);
+                if (check != null)
+                {
+                    visit = _visitService.HasVisit(name);
+                }
+            });
+            if (visit == null) return new Result();
+            return new Result()
+            {
+                IsCompleted = true,
+                Message = ResultMessages.ProcessCompleted,
+                Value = visit.DurationInMinutes.ToString()
+            };
+
         }
     }
 }

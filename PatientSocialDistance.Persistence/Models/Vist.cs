@@ -13,7 +13,9 @@ namespace PatientSocialDistance.Persistence.Models
         public string VistedUserId { get; set; }
         public string VistorUserId { get; set; }
         [Required]
-        public DateTime VistDate { get; set; }
+        public DateTime StartVistDate { get; set; }
+        public int DurationInMinutes { get; set; }
+        public bool IsStartDateChange { get; set; }
         public string Reason { get; set; }
         public string Message { get; set; }
         

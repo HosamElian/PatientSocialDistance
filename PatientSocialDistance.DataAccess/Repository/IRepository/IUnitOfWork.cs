@@ -13,7 +13,7 @@ namespace PatientSocialDistance.DataAccess.Repository.IRepository
         IRoleRepository RoleRepository { get; }
         IUserRepository UserRepository { get; }
         IVistRepository VistRepository { get; }
-
+        INotificationRepository NotificationRepository { get; }
 
         Task<bool> Save();
     }

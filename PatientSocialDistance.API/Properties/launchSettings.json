@@ -11,10 +11,10 @@
   "profiles": {
     "http": {
       "commandName": "Project",
-      "dotnetRunMessages": true,
-      "launchBrowser": true,
+      "dotnetRunMessages": false,
+      "launchBrowser": false,
       "launchUrl": "swagger",
-      "applicationUrl": "http://localhost:5202",
+      "applicationUrl": "http://0.0.0.0:5000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
@@ -37,7 +37,8 @@
     },
     "Android": {
       "commandName": "Project",
-      "applicationUrl": "https://192.168.1.2:7204;http://192.168.1.2:5202",
+      "launchBrowser": false,
+      "applicationUrl": "https://0.0.0.0:7204;http://0.0.0.0",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

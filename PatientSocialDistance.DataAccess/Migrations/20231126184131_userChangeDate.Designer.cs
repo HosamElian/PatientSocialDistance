@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PatientSocialDistance.DataAccess.Data;
 
@@ -11,9 +12,11 @@ using PatientSocialDistance.DataAccess.Data;
 namespace PatientSocialDistance.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231126184131_userChangeDate")]
+    partial class userChangeDate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -201,10 +204,6 @@ namespace PatientSocialDistance.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Image")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -360,9 +359,6 @@ namespace PatientSocialDistance.DataAccess.Migrations
                     b.Property<bool>("IsChangeDate")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -511,12 +507,6 @@ namespace PatientSocialDistance.DataAccess.Migrations
                             Id = 3,
                             IsDeleted = false,
                             Name = "Reject"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            IsDeleted = false,
-                            Name = "WaitForRequesterToApprove"
                         });
                 });
 

@@ -16,6 +16,7 @@ namespace PatientSocialDistance.API.Controllers
         }
 
         [HttpGet("GetAllInteraction")]
+        [HttpGet]
         public async Task<IActionResult> GetAllInteraction(string username)
         {
             if (String.IsNullOrWhiteSpace(username)) return BadRequest(ModelState);
@@ -28,24 +29,30 @@ namespace PatientSocialDistance.API.Controllers
 
         }
 
-        [HttpPost("AddInteraction")]
-        public IActionResult AddInteraction([FromBody] InteractionDto model)
+
+        [HttpGet("SetData")]
+        public IActionResult SetData(string name)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            var names = name.Split(',');
 
-            var result = _interactionService.Add(model);
+           var result = _interactionService.Add(names);
+            if (!result.IsCompleted) return BadRequest(result.Message);
 
+            return Ok();
+        }
+
+        [HttpGet("duration")]
+        public IActionResult Duration(string name)
+        {
+            var names = name.Split(',');
+            var result = _interactionService.returnDuration(names);
+            
             if (!result.IsCompleted) return BadRequest(result.Message);
 
             return Ok(result.Value);
         }
 
-        [HttpGet("AddInteraction2")]
-        public IActionResult AddInteraction2()
-        {
-
-            return Ok("Hosam");
-        }
 
     }
+ 
 }

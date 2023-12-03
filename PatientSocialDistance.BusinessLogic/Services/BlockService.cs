@@ -12,21 +12,36 @@ namespace PatientSocialDistance.BusinessLogic.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly INotificationService _notificationService;
 
-        public BlockService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager)
+        public BlockService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, INotificationService notificationService )
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
+            _notificationService = notificationService;
         }
-        public async Task<Result> CreateOrDeleteBlockAsync(BlockUserDto blockUserDto)
+        public async Task<Result> CreateOrDeleteBlockAsync(BlockUserDTO blockUserDto)
         {
-            var blockFromDB = await _unitOfWork.BlockRepository.GetByUserIdIdAsync(blockUserDto.UserMakeBlockId, blockUserDto.UserBlockedId);
+            var user = _userManager.FindByNameAsync(blockUserDto.UsernameMakeBlock).Result;
+            var userBlocked = _userManager.FindByNameAsync(blockUserDto.UsernameBlocked).Result;
+
+            var blockFromDB = await _unitOfWork.BlockRepository.GetByUserIdIdAsync(user.Id, userBlocked.Id);
+
             if (blockFromDB != null)
             {
                 if (blockUserDto.MakeBlock)
                 {
                     blockFromDB.IsActive = true;
                     blockFromDB.BlockedAt = DateTime.Now;
+                    if(blockUserDto.HasNotification)
+                    {
+                       await _notificationService.AddNotificationNoSave(new NotificationDTO
+                        {
+                            MakeActionUsername = user.UserName,
+                            TargetUsername = userBlocked.UserName,
+                            Message = $"You Have Been Blocked by {user.UserName}"
+                        });
+                    }
                 }
                 else
                 {
@@ -43,9 +58,18 @@ namespace PatientSocialDistance.BusinessLogic.Services
                         IsDeleted = false,
                         IsActive = true,
                         BlockedAt = DateTime.Now,
-                        UserBlockedId = blockUserDto.UserBlockedId,
-                        UserMakeBlockId = blockUserDto.UserMakeBlockId,
+                        UserBlockedId = userBlocked.Id,
+                        UserMakeBlockId = user.Id,
                     };
+                    if (blockUserDto.HasNotification)
+                    {
+                        await _notificationService.AddNotificationNoSave(new NotificationDTO
+                        {
+                            MakeActionUsername = user.UserName,
+                            TargetUsername = userBlocked.UserName,
+                            Message = $"You Have Been Blocked by {user.UserName}"
+                        });
+                    }
                     _unitOfWork.BlockRepository.Add(block);
                 }
             }
@@ -81,7 +105,7 @@ namespace PatientSocialDistance.BusinessLogic.Services
             List<BlockedUserDTO> blockUserDtos = result.ToList().Select(b=> new BlockedUserDTO
             {
                 Id = b.UserBlocked.Id,
-                Name = b.UserBlocked.Name,
+                Name = b.UserBlocked.UserName,
                 Hospital = b.UserBlocked.Hospital,
                 PhoneNumber = b.UserBlocked.PhoneNumber ?? "",
             }).ToList();

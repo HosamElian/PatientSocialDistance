@@ -19,6 +19,7 @@ namespace PatientSocialDistance.Persistence.Models
         public string Hospital { get; set; }
         public UserType UserType { get; set; }
         public List<ApplicationUser> BlockedUsers { get; set; }
+        public string Image { get; set; }
     }
     
 }

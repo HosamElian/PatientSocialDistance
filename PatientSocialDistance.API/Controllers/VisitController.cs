@@ -17,53 +17,27 @@ namespace PatientSocialDistance.API.Controllers
             _visitService = visitService;
         }
 
-        [HttpGet("GetAllApprovedVisits")]
-        public async Task<IActionResult> GetGetAllApprovedAll(string username)
+        [HttpPost("GetAllVisits")]
+        public async Task<IActionResult> GetGetAllApprovedAll(GetVisitRequest request)
         {
 
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var result = await _visitService.GetAllVisits(username);
+            var result = await _visitService.GetAllVisits(request);
 
             if (!result.IsCompleted) return BadRequest(result.Message);
 
             return Ok(result.Value);
         }
-        
-        [HttpGet("GetAllNotApprovedVisits")] //
-        public async Task<IActionResult> GetAllNotApproved(string username)
+
+        [HttpPost("GetAllVisitsByDate")] 
+        public async Task<IActionResult> GetAllVisitsByDate(GetVisitByDateRequest request)
         {
 
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var result = await _visitService.GetAllVisits(username, false);
 
-            if (!result.IsCompleted) return BadRequest(result.Message);
-
-            return Ok(result.Value);
-        }
-        [HttpGet("GetAllNotApprovedByDate")]
-        public async Task<IActionResult> GetAllNotApprovedByDate(string username, string date)
-        {
-
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            var result = await _visitService.GetAllVisits(username, false);
-
-            if (!result.IsCompleted) return BadRequest(result.Message);
-
-            return Ok(result.Value);
-        }
-        [HttpGet("GetAllApprovedByDate")] //
-        public async Task<IActionResult> GetAllApprovedByDate(string username, string date)
-        {
-
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            DateOnly visitDate = DateOnly.FromDateTime( DateTime.Parse(date));
-            
-
-            var result = await _visitService.GetVisitsByDate(username, visitDate);
+            var result = await _visitService.GetVisitsByDate(request);
 
             if (!result.IsCompleted) return BadRequest(result.Message);
 
@@ -71,15 +45,20 @@ namespace PatientSocialDistance.API.Controllers
         }
 
 
-        [HttpPost("ReserveVisit")] //
-        public IActionResult CreateVisit([FromBody] VisitDto model)
+        [HttpPost("ReserveVisit")] 
+        public async Task<IActionResult> CreateVisit([FromBody] VisitDto model)
         {
 
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var result = _visitService.CreateVisit(model);
+            var result = await _visitService.CreateVisit(model);
 
-            if (!result.IsCompleted) return BadRequest(result.Message);
+            if (!result.IsCompleted)
+            {
+                if((int) result.Value == 403) return Forbid(result.Message);
+                if((int)result.Value == 400) return BadRequest(result.Message);
+            } 
+                
 
             return Ok(result);
         }

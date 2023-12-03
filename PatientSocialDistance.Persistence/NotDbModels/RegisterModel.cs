@@ -22,5 +22,6 @@ namespace PatientSocialDistance.Persistence.NotDbModels
         public string Nationality { get; set; }
         [Required]
         public string Hospital { get; set; }
+        public string Image { get; set; }
     }
 }

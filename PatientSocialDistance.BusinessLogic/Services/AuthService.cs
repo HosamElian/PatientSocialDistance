@@ -47,6 +47,7 @@ namespace PatientSocialDistance.BusinessLogic.Services
                 Nationality = registerModel.Nationality,
                 UserTypeId = registerModel.UserTypeId,
                 Hospital = registerModel.Hospital,
+                Image = registerModel.Image,
             };
 
             var result = await _userManager.CreateAsync(user, registerModel.Password);
@@ -74,6 +75,7 @@ namespace PatientSocialDistance.BusinessLogic.Services
                 IsAuthenticated = true,
                 Username = user.UserName,
                 Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),
+                Image = user.Image,
                 Roles = userRole
             };
         }
@@ -81,10 +83,11 @@ namespace PatientSocialDistance.BusinessLogic.Services
         public async Task<AuthModelResponse> GetTokenAsync(TokenRequestModel tokenRequestModel)
         {
             var authModel = new AuthModelResponse();
-            var user = await _userManager.FindByEmailAsync(tokenRequestModel.Email);
+            var user = await _userManager.FindByNameAsync(tokenRequestModel.Email);
 
             if (user is null || !await _userManager.CheckPasswordAsync(user, tokenRequestModel.Password))
             {
+                authModel.IsAuthenticated = false;
                 authModel.Message = "Email or Password is incorrect";
                 return authModel;
             }
@@ -98,6 +101,7 @@ namespace PatientSocialDistance.BusinessLogic.Services
             authModel.IsAuthenticated = true;
             authModel.Username = user.UserName;
             authModel.Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+            authModel.Image = user.Image;
             authModel.Roles = userRole.ToList();
 
             return authModel;

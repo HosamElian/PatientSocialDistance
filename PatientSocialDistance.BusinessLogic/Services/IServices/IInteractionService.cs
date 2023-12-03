@@ -11,7 +11,8 @@ namespace PatientSocialDistance.BusinessLogic.Services.IServices
 {
     public interface IInteractionService
     {
-        Result Add(InteractionDto interaction);
+        Result Add(string[] names);
+        Result returnDuration(string[] names);
         Task<Result> GetAllAsync(string username);
     }
 }
